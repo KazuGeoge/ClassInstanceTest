@@ -20,19 +20,14 @@ struct Book {
 class BookShelf {
     
     var bookArray: [Book]
-    var user = User()
     
-    init(bookArray: [Book], user: User) {
+    init(bookArray: [Book]) {
         self.bookArray = bookArray
-        self.user = user
     }
     
     // 本を借りるメソッド。配列から削除し借りた本を返す
     func rentBook(rentBook: Book) {
         
-        if user.isLogin == false {
-            return
-        }
         // 本が借りられるため該当の本をbookArrayから削除する
         // 先に抽出した本と実際
         for (index, book) in bookArray.enumerated() {
@@ -48,16 +43,12 @@ class BookShelf {
     // 借りた本を返すメソッド、。配列に戻す
     func returnBook(book: Book) {
         
-        if user.isLogin == false {
-            return
-        }
-        
         bookArray.append(book)
     }
 }
 
-class RentalList {
-    var bookShelf: BookShelf
+class Library {
+    private var bookShelf: BookShelf
     var user = User()
     
     var allBooks: [Book]
@@ -78,6 +69,8 @@ class RentalList {
         
         rentalList.append(book)
         rentalListLog.append(book)
+        
+        bookShelf.rentBook(rentBook: book)
     }
     
     func returnBook(rentBook: Book) {
@@ -94,6 +87,12 @@ class RentalList {
                 return
             }
         }
+        bookShelf.returnBook(book: rentBook)
+    }
+    
+    func reportAllBooks() -> [Book] {
+        
+        return bookShelf.bookArray
     }
 }
 
@@ -129,8 +128,9 @@ user.resister(userName: "城島", userPassword: "1112")
 
 // ログイン
 let userLogin = UserLogin(user: user)
-userLogin.login(userName: "城島", userPassword: "111a2")
+userLogin.login(userName: "城島", userPassword: "1112")
 
+// 本の追加
 var bookArray: [Book] = []
 bookArray.append(Book(title: "冒険", author: "斎藤", genre: "アドベンチャー", pageCount: 800))
 bookArray.append(Book(title: "宇宙", author: "斎藤", genre: "SF", pageCount: 300))
@@ -139,47 +139,47 @@ bookArray.append(Book(title: "運動", author: "田中", genre: "健康", pageCo
 bookArray.append(Book(title: "宇宙", author: "斎藤", genre: "SF", pageCount: 300))
 
 // BookShelfをインスタンス化
-let bookShelf = BookShelf(bookArray: bookArray, user: user)
-let rentalList = RentalList(bookShelf: bookShelf, user: user)
+let bookShelf = BookShelf(bookArray: bookArray)
+
+// libraryをインスタンス化
+let library = Library(bookShelf: bookShelf, user: user)
 
 // 追加後の本棚の本を表示
-for book in bookShelf.bookArray {
+for book in library.reportAllBooks() {
     print("最初の本棚の本:\(book)")
 }
 // 本のレンタルを実行
-for rentedBook in rentalList.allBooks[0...2] {
-    bookShelf.rentBook(rentBook: rentedBook)
-    rentalList.addRentalList(book: rentedBook)
+for rentedBook in library.allBooks[0...2] {
+    library.addRentalList(book: rentedBook)
 }
 
-for book in rentalList.rentalList {
+for book in library.rentalList {
     print("現在借りている本:\(book)")
 }
 
 // 本の返却を実行
 print("本の返却を実行")
 // TODO: ログインしていないためエラーになるので対応必須
-for book in rentalList.rentalList[0...1] {
-    bookShelf.returnBook(book: book)
-    rentalList.returnBook(rentBook: book)
+for book in library.rentalList[0...1] {
+    library.returnBook(rentBook: book)
 }
 
-for book in rentalList.rentalList {
+for book in library.rentalList {
     print("現在借りている本:\(book)")
 }
 
-for book in bookShelf.bookArray {
+for book in library.reportAllBooks() {
     print("本棚の本:\(book)")
 }
 
-for book in rentalList.rentalListLog {
+for book in library.rentalListLog {
     print("過去に借りた本:\(book)")
 }
 
 var rentedCount = 0
 let bookTitle = "経済"
 
-for book in rentalList.rentalListLog {
+for book in library.rentalListLog {
     
     if book.title == bookTitle {
         rentedCount += 1
