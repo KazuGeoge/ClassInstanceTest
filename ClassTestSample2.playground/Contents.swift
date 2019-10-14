@@ -85,6 +85,18 @@ class Library {
         
         return bookShelf.bookArray
     }
+    
+    func repotRentalListLog(bookTitle: String) -> Int {
+        var rentedCount = 0
+        
+        for book in rentalListLog {
+            
+            if book.title == bookTitle {
+                rentedCount += 1
+            }
+        }
+        return rentedCount
+    }
 }
 
 class User {
@@ -170,7 +182,7 @@ UserLogin(user: user1).login(userName: "城島", userPassword: "1112")
 let user2 = User(library: library)
 user2.resister(userName: "渡辺", userPassword: "1026")
 // ログインはしてない
-//UserLogin(user: user2).login(userName: "渡辺", userPassword: "1026")
+UserLogin(user: user2).login(userName: "渡辺", userPassword: "1026")
 
 // 現在本棚にある本を取得
 let allBooks = library.reportAllBooks()
@@ -190,7 +202,7 @@ for book in library.rentalList {
 print("本の返却を実行")
 
 user1.returnBook(rentedBook: user1.rentedBooks[0])
-user2.rentBook(rentBook: allBooks[0])
+user2.returnBook(rentedBook: user2.rentedBooks[0])
 
 for book in library.rentalList {
     print("現在借りている本:\(book)")
@@ -204,14 +216,6 @@ for book in library.rentalListLog {
     print("過去に借りた本:\(book)")
 }
 
-var rentedCount = 0
-let bookTitle = "経済"
-
-for book in library.rentalListLog {
-    
-    if book.title == bookTitle {
-        rentedCount += 1
-    }
-}
-print("\(bookTitle)を過去に借りた回数:\(rentedCount)")
+let bookTitle = "宇宙"
+print("\(bookTitle)を過去に借りた回数:\(library.repotRentalListLog(bookTitle: bookTitle))")
 
