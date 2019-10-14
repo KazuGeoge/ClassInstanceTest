@@ -51,13 +51,11 @@ class BookShelf {
 class Library {
     private var bookShelf: BookShelf
     
-    var allBooks: [Book]
     var rentalList: [Book] = []
     var rentalListLog: [Book] = []
     
     init(bookShelf: BookShelf) {
         self.bookShelf = bookShelf
-        self.allBooks = self.bookShelf.bookArray
     }
     
     func rentalBook(book: Book, user: User) {
