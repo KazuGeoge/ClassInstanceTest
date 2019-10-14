@@ -52,7 +52,7 @@ class Library {
     
     func rentalBook(book: Book, user: User) {
         
-        if user.isLogin == false {
+        if user.isLogin == false || user.rentedBooks.count > 5 {
             return
         }
         
@@ -123,6 +123,7 @@ bookArray.append(Book(title: "宇宙", author: "斎藤", genre: "SF", pageCount:
 bookArray.append(Book(title: "宇宙", author: "斎藤", genre: "SF", pageCount: 300, id: 2))
 bookArray.append(Book(title: "経済", author: "伊藤", genre: "ビジネス", pageCount: 400, id: 3))
 bookArray.append(Book(title: "運動", author: "田中", genre: "健康", pageCount: 200, id: 4))
+bookArray.append(Book(title: "冒険", author: "斎藤", genre: "アドベンチャー", pageCount: 800, id: 5))
 bookArray.append(Book(title: "冒険", author: "斎藤", genre: "アドベンチャー", pageCount: 800, id: 5))
 
 // BookShelfをインスタンス化
