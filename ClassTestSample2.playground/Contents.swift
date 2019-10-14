@@ -60,15 +60,25 @@ class Library {
         self.allBooks = self.bookShelf.bookArray
     }
     
-    func rentalBook(book: Book) {
+    func rentalBook(book: Book, user: User) {
+        
+        if user.isLogin == false {
+            return
+        }
         
         rentalList.append(book)
         rentalListLog.append(book)
+        user.rentedBooks.append(book)
         
         bookShelf.orderBook(rentBook: book)
     }
     
-    func returnBook(rentBook: Book) {
+    func returnBook(rentBook: Book, user: User) {
+        
+        if user.isLogin == false {
+            return
+        }
+        
         // TODO: 同じインスタンスを判定する
         for (index, book) in rentalList.enumerated() {
             
@@ -104,44 +114,10 @@ class User {
     var userPassword: String?
     var isLogin = false
     var rentedBooks: [Book] = []
-    var library: Library
-    
-    init(library: Library) {
-        self.library = library
-    }
     
     func resister(userName: String, userPassword: String) {
         self.userName = userName
         self.userPassword = userPassword
-    }
-    
-    func rentBook(rentBook: Book) {
-        
-        if isLogin == false {
-            return
-        }
-        
-        library.rentalBook(book: rentBook)
-        
-        rentedBooks.append(rentBook)
-    }
-    
-    func returnBook(rentedBook: Book) {
-        
-        if isLogin == false {
-            return
-        }
-        
-        library.returnBook(rentBook: rentedBook)
-        
-        for (index, book) in rentedBooks.enumerated() {
-            
-            if book.title == rentedBook.title {
-                rentedBooks.remove(at: index)
-                
-                return
-            }
-        }
     }
 }
 
@@ -174,12 +150,12 @@ let bookShelf = BookShelf(bookArray: bookArray)
 let library = Library(bookShelf: bookShelf)
 
 // 会員登録
-let user1 = User(library: library)
+let user1 = User()
 user1.resister(userName: "城島", userPassword: "1112")
 // ログイン
 UserLogin(user: user1).login(userName: "城島", userPassword: "1112")
 // 会員登録
-let user2 = User(library: library)
+let user2 = User()
 user2.resister(userName: "渡辺", userPassword: "1026")
 // ログインはしてない
 UserLogin(user: user2).login(userName: "渡辺", userPassword: "1026")
@@ -191,8 +167,8 @@ for book in allBooks {
 }
 
 // 本のレンタルを実行
-user1.rentBook(rentBook: allBooks[0])
-user2.rentBook(rentBook: allBooks[0])
+library.rentalBook(book: allBooks[0], user: user1)
+library.rentalBook(book: allBooks[0], user: user2)
 
 for book in library.rentalList {
     print("現在借し出し中の本:\(book)")
@@ -201,8 +177,8 @@ for book in library.rentalList {
 // 本の返却を実行
 print("本の返却を実行")
 
-user1.returnBook(rentedBook: user1.rentedBooks[0])
-user2.returnBook(rentedBook: user2.rentedBooks[0])
+library.returnBook(rentBook: user1.rentedBooks[0], user: user1)
+library.returnBook(rentBook: user2.rentedBooks[0], user: user2)
 
 for book in library.rentalList {
     print("現在借りている本:\(book)")
