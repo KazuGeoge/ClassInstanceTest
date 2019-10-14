@@ -14,6 +14,7 @@ struct Book {
     var author: String
     var genre: String
     var pageCount: Int
+    var id: Int
 }
 
 // BookShelfを使う人はBookにIDが振られている事のみ認識する形に
@@ -29,16 +30,7 @@ class BookShelf {
     func orderBook(rentBook: Book) {
         
         // 本が借りられるため該当の本をbookArrayから削除する
-        // 先に抽出した本と実際
-        // TODO: 同じインスタンスを判定する
-        for (index, book) in bookArray.enumerated() {
-            
-            if book.title == rentBook.title {
-                bookArray.remove(at: index)
-                
-                return
-            }
-        }
+       bookArray = bookArray.filter { $0.id != rentBook.id }
     }
     
     // 借りた本を返すメソッド、。配列に戻す
@@ -78,16 +70,7 @@ class Library {
         }
         
         bookShelf.restoreBook(book: rentedBook)
-        
-        // TODO: 同じインスタンスを判定する
-        for (index, book) in rentalList.enumerated() {
-            
-            if book.title == rentedBook.title {
-                rentalList.remove(at: index)
-                
-                return
-            }
-        }
+        rentalList = rentalList.filter { $0.id != rentedBook.id }
     }
     
     func reportAllBooks() -> [Book] {
@@ -95,11 +78,11 @@ class Library {
         return bookShelf.bookArray
     }
     
-    func reportRentedCount(bookTitle: String) -> Int {
+    func reportRentedCount(bookID: Int) -> Int {
         
         var rentedCount = 0
         // TODO: 同じインスタンスを判定する
-        for book in rentalListLog where book.title == bookTitle {
+        for book in rentalListLog where book.id == bookID {
             
             rentedCount += 1
         }
@@ -136,11 +119,11 @@ class UserLogin {
 }
 // 本の追加
 var bookArray: [Book] = []
-bookArray.append(Book(title: "宇宙", author: "斎藤", genre: "SF", pageCount: 300))
-bookArray.append(Book(title: "宇宙", author: "斎藤", genre: "SF", pageCount: 300))
-bookArray.append(Book(title: "経済", author: "伊藤", genre: "ビジネス", pageCount: 400))
-bookArray.append(Book(title: "運動", author: "田中", genre: "健康", pageCount: 200))
-bookArray.append(Book(title: "冒険", author: "斎藤", genre: "アドベンチャー", pageCount: 800))
+bookArray.append(Book(title: "宇宙", author: "斎藤", genre: "SF", pageCount: 300, id: 1))
+bookArray.append(Book(title: "宇宙", author: "斎藤", genre: "SF", pageCount: 300, id: 2))
+bookArray.append(Book(title: "経済", author: "伊藤", genre: "ビジネス", pageCount: 400, id: 3))
+bookArray.append(Book(title: "運動", author: "田中", genre: "健康", pageCount: 200, id: 4))
+bookArray.append(Book(title: "冒険", author: "斎藤", genre: "アドベンチャー", pageCount: 800, id: 5))
 
 // BookShelfをインスタンス化
 let bookShelf = BookShelf(bookArray: bookArray)
@@ -192,5 +175,6 @@ for book in library.rentalListLog {
 }
 
 let bookTitle = "宇宙"
-print("\(bookTitle)を過去に借りた回数:\(library.reportRentedCount(bookTitle: bookTitle))")
+let bookID = 1
+print("\(bookTitle)を過去に借りた回数:\(library.reportRentedCount(bookID: bookID))")
 
