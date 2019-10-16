@@ -7,6 +7,11 @@
 //・ユーザー(User)がログイン(name, password)をできる
 //・ログインしたユーザー(User)のみ本を貸し借りをすることができる
 
+//・本(Book)はユーザー(User)あたり5冊借りることができる
+//・ユーザー(User)は10回以上、本(Book)の貸し借りをすると優良ユーザーとなる
+//・本(Book)には優良ユーザーのみが借りることができる限定本がある
+//・限定本は3冊分のレンタルとカウントする(限定本を借りた場合は通常の本は2冊しか借りることができない)
+
 import UIKit
 
 struct Book {
@@ -64,13 +69,15 @@ class Library {
         
         rentalList.append(book)
         rentalListLog.append(book)
+        
         user.rentedBooks.append(book)
         user.rentedCount += 1
-        bookShelf.orderBook(rentBook: book)
         
         if book.isLimited {
             user.rentedCount += 2
         }
+        
+        bookShelf.orderBook(rentBook: book)
     }
     
     func returnBook(rentedBook: Book, user: User) {
@@ -81,11 +88,12 @@ class Library {
         
         bookShelf.restoreBook(book: rentedBook)
         rentalList = rentalList.filter { $0.id != rentedBook.id }
+        
         user.rentedBooks = user.rentedBooks.filter { $0.id != rentedBook.id }
         user.completedReturnCount += 1
         user.rentedCount -= 1
         
-        if user.completedReturnCount > 10 {
+        if user.completedReturnCount >= 10 {
             user.isExcellentUser = true
         }
         
@@ -97,6 +105,11 @@ class Library {
     func reportAllBooks() -> [Book] {
         
         return bookShelf.bookArray
+    }
+    
+    func reportLimitedBooks() -> [Book] {
+            
+        return bookShelf.bookArray.filter { $0.isLimited }
     }
     
     func reportRentedCount(bookID: Int) -> Int {
@@ -148,7 +161,12 @@ bookArray.append(Book(title: "宇宙", author: "斎藤", genre: "SF", pageCount:
 bookArray.append(Book(title: "経済", author: "伊藤", genre: "ビジネス", pageCount: 400, id: 3, isLimited: false))
 bookArray.append(Book(title: "運動", author: "田中", genre: "健康", pageCount: 200, id: 4, isLimited: false))
 bookArray.append(Book(title: "冒険", author: "斎藤", genre: "アドベンチャー", pageCount: 800, id: 5, isLimited: false))
-bookArray.append(Book(title: "冒険", author: "斎藤", genre: "アドベンチャー", pageCount: 800, id: 6, isLimited: true))
+bookArray.append(Book(title: "冒険", author: "斎藤", genre: "アドベンチャー", pageCount: 800, id: 6, isLimited: false))
+bookArray.append(Book(title: "冒険", author: "斎藤", genre: "アドベンチャー", pageCount: 800, id: 7, isLimited: false))
+bookArray.append(Book(title: "冒険", author: "斎藤", genre: "アドベンチャー", pageCount: 800, id: 8, isLimited: false))
+bookArray.append(Book(title: "冒険", author: "斎藤", genre: "アドベンチャー", pageCount: 800, id: 9, isLimited: false))
+bookArray.append(Book(title: "冒険", author: "斎藤", genre: "アドベンチャー", pageCount: 800, id: 10, isLimited: false))
+bookArray.append(Book(title: "冒険", author: "斎藤", genre: "アドベンチャー", pageCount: 800, id: 11, isLimited: true))
 
 // BookShelfをインスタンス化
 let bookShelf = BookShelf(bookArray: bookArray)
@@ -165,7 +183,7 @@ UserLogin(user: user1).login(userName: "城島", userPassword: "1112")
 let user2 = User()
 user2.resister(userName: "渡辺", userPassword: "1026")
 // ログインはしてない
-UserLogin(user: user2).login(userName: "渡辺", userPassword: "1026")
+//UserLogin(user: user2).login(userName: "渡辺", userPassword: "1026")
 
 // 現在本棚にある本を取得
 for book in library.reportAllBooks() {
@@ -173,14 +191,16 @@ for book in library.reportAllBooks() {
 }
 
 // 本のレンタルを実行
-library.rentalBook(book: library.reportAllBooks()[0], user: user1)
 print("レンタル実行")
+// 5冊借りる
+for book in library.reportAllBooks()[0...4] {
+    library.rentalBook(book: book, user: user1)
+}
+library.rentalBook(book: library.reportAllBooks()[0], user: user2)
 
 for book in library.reportAllBooks() {
     print("現在本棚にある本:\(book)")
 }
-
-library.rentalBook(book: library.reportAllBooks()[0], user: user2)
 
 for book in library.rentalList {
     print("現在借し出し中の本:\(book)")
@@ -189,11 +209,32 @@ for book in library.rentalList {
 // 本の返却を実行
 print("本の返却を実行")
 
-library.returnBook(rentedBook: user1.rentedBooks[0], user: user1)
-library.returnBook(rentedBook: user2.rentedBooks[0], user: user2)
+for book in user1.rentedBooks[0...4] {
+    library.returnBook(rentedBook: book, user: user1)
+}
+
+//もう5回ずつ貸し借りを実行
+print("もう５回ずつ貸し借りを実行")
+for book in library.reportAllBooks()[0...4] {
+    library.rentalBook(book: book, user: user1)
+}
+for book in user1.rentedBooks[0...4] {
+    library.returnBook(rentedBook: book, user: user1)
+}
+
+print("ユーザーのステータス:\(user1.isExcellentUser)")
+//library.returnBook(rentedBook: user2.rentedBooks[0], user: user2)
+
+let limitedBooks = library.reportLimitedBooks()
+
+for limitedBook in limitedBooks {
+    print("本棚にある限定本:\(limitedBook)")
+}
+library.rentalBook(book: limitedBooks[0], user: user1)
+print("ユーザーのレンタル数:\(user1.rentedCount)")
 
 for book in library.rentalList {
-    print("現在借りている本:\(book)")
+    print("現在借りられている本:\(book)")
 }
 
 for book in library.reportAllBooks() {
