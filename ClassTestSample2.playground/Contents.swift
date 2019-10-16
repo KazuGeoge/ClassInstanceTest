@@ -65,7 +65,12 @@ class Library {
         rentalList.append(book)
         rentalListLog.append(book)
         user.rentedBooks.append(book)
+        user.rentedCount += 1
         bookShelf.orderBook(rentBook: book)
+        
+        if book.isLimited {
+            user.rentedCount += 2
+        }
     }
     
     func returnBook(rentedBook: Book, user: User) {
@@ -78,9 +83,14 @@ class Library {
         rentalList = rentalList.filter { $0.id != rentedBook.id }
         user.rentedBooks = user.rentedBooks.filter { $0.id != rentedBook.id }
         user.completedReturnCount += 1
+        user.rentedCount -= 1
         
         if user.completedReturnCount > 10 {
             user.isExcellentUser = true
+        }
+        
+        if rentedBook.isLimited {
+            user.rentedCount -= 2
         }
     }
     
@@ -92,7 +102,7 @@ class Library {
     func reportRentedCount(bookID: Int) -> Int {
         
         var rentedCount = 0
-        // TODO: 同じインスタンスを判定する
+
         for book in rentalListLog where book.id == bookID {
             
             rentedCount += 1
@@ -107,6 +117,7 @@ class User {
     var userPassword: String?
     var isLogin = false
     var rentedBooks: [Book] = []
+    var rentedCount = 0
     var completedReturnCount = 0
     var isExcellentUser = false
     
@@ -157,7 +168,6 @@ user2.resister(userName: "渡辺", userPassword: "1026")
 UserLogin(user: user2).login(userName: "渡辺", userPassword: "1026")
 
 // 現在本棚にある本を取得
-
 for book in library.reportAllBooks() {
     print("現在本棚にある本:\(book)")
 }
