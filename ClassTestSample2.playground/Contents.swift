@@ -71,10 +71,11 @@ class Library {
         rentalListLog.append(book)
         
         user.rentedBooks.append(book)
-        user.rentedCount += 1
         
         if book.isLimited {
-            user.rentedCount += 2
+            user.rentedCount += 3
+        } else {
+            user.rentedCount += 1
         }
         
         bookShelf.orderBook(rentBook: book)
@@ -91,14 +92,15 @@ class Library {
         
         user.rentedBooks = user.rentedBooks.filter { $0.id != rentedBook.id }
         user.completedReturnCount += 1
-        user.rentedCount -= 1
+       
+        if rentedBook.isLimited {
+            user.rentedCount -= 3
+        } else {
+            user.rentedCount -= 1
+        }
         
         if user.completedReturnCount >= 10 {
             user.isExcellentUser = true
-        }
-        
-        if rentedBook.isLimited {
-            user.rentedCount -= 2
         }
     }
     
